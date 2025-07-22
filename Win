@@ -1,3 +1,11 @@
+-- Verificação de ativação do script
+local ScriptAtivado = false -- Altere para true para ativar o script
+
+if not ScriptAtivado then
+	game.Players.LocalPlayer:Kick("This script has been disabled by the OWNER, please wait for the owner to activate the script.")
+	return -- Impede o restante do script de rodar
+end
+
 -- Carregar Rayfield (certifique-se de ter Rayfield disponível)
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
