@@ -66,7 +66,7 @@ local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
--- 🔍 Wall Check (visão)
+-- 🔍 Wall Check
 local function IsVisible(targetPart)
 	if not targetPart then return false end
 	local origin = Camera.CFrame.Position
@@ -104,7 +104,7 @@ local function GetClosestTarget()
 	return closestPlayer
 end
 
--- 🧠 Loop de Aimbot
+-- 🎯 Loop Aimbot
 RunService.RenderStepped:Connect(function()
 	if getgenv().AimbotAtivado then
 		local target = GetClosestTarget()
@@ -114,34 +114,34 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- 🔴 Atualização contínua do ESP
+-- 🔴 ESP contínuo com remoção imediata
 RunService.RenderStepped:Connect(function()
-	if getgenv().ESPAtivado then
-		for _, player in pairs(Players:GetPlayers()) do
-			if player ~= LocalPlayer and player.Character then
-				local char = player.Character
-				local esp = char:FindFirstChild("EnemyESP")
+	for _, player in pairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer and player.Character then
+			local char = player.Character
+			local existing = char:FindFirstChild("EnemyESP")
 
-				if not esp then
+			if getgenv().ESPAtivado then
+				if not existing then
 					local highlight = Instance.new("Highlight")
 					highlight.Name = "EnemyESP"
 					highlight.FillColor = Color3.new(1, 0, 0)
 					highlight.OutlineColor = Color3.new(1, 0, 0)
 					highlight.FillTransparency = 0.5
 					highlight.OutlineTransparency = 0
+					highlight.Adornee = char
 					highlight.Parent = char
 				end
-			elseif player.Character and not getgenv().ESPAtivado then
-				local highlight = player.Character:FindFirstChild("EnemyESP")
-				if highlight then
-					highlight:Destroy()
+			else
+				if existing then
+					existing:Destroy()
 				end
 			end
 		end
 	end
 end)
 
--- ✅ Toggles na interface
+-- ✅ Toggles Aimbot
 
 AimbotTab:CreateToggle({
 	Name = "Aimbot",
