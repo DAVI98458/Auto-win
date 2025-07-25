@@ -1,7 +1,7 @@
--- ✅ Carregar Rayfield
+-- Carregar Rayfield
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
--- ✅ Criar Janela
+-- Criar Janela
 local Window = Rayfield:CreateWindow({
 	Name = "Red Light, Green Light and Glass Bridge",
 	LoadingTitle = "Carregando Interface...",
@@ -11,7 +11,7 @@ local Window = Rayfield:CreateWindow({
 	KeySystem = false
 })
 
--- ✅ Aba: Auto Win
+-- Aba: Auto Win
 local AutoWinTab = Window:CreateTab("Auto Win", 4483362458)
 
 local function teleportTo(pos)
@@ -49,10 +49,10 @@ AutoWinTab:CreateButton({
 	end
 })
 
--- ✅ Aba: Aimbot
+-- Aba: Aimbot
 local AimbotTab = Window:CreateTab("Aimbot", 6034287514)
 
--- 🔧 Variáveis globais
+-- Variáveis globais
 getgenv().AimbotAtivado = false
 getgenv().TeamCheck = false
 getgenv().DeadCheck = false
@@ -64,7 +64,7 @@ local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
--- 🔍 Wall Check
+-- Wall Check
 local function IsVisible(targetPart)
 	if not targetPart then return false end
 	local origin = Camera.CFrame.Position
@@ -77,7 +77,7 @@ local function IsVisible(targetPart)
 	return not result or result.Instance:IsDescendantOf(targetPart.Parent)
 end
 
--- 🎯 Buscar alvo mais próximo
+-- Buscar alvo mais próximo
 local function GetClosestTarget()
 	local closestPlayer = nil
 	local shortestDistance = math.huge
@@ -102,7 +102,7 @@ local function GetClosestTarget()
 	return closestPlayer
 end
 
--- 🎯 Loop Aimbot
+-- Loop Aimbot
 RunService.RenderStepped:Connect(function()
 	if getgenv().AimbotAtivado then
 		local target = GetClosestTarget()
@@ -112,16 +112,28 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- 🔴 ESP contínuo com remoção + atualização por troca de time
+-- ESP contínuo com TeamCheck dinâmico
 RunService.RenderStepped:Connect(function()
+	if not getgenv().ESPAtivado then
+		for _, player in pairs(Players:GetPlayers()) do
+			if player ~= LocalPlayer and player.Character then
+				local hl = player.Character:FindFirstChild("EnemyESP")
+				if hl then hl:Destroy() end
+			end
+		end
+		return
+	end
+
 	for _, player in pairs(Players:GetPlayers()) do
 		if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
 			local char = player.Character
-			local highlight = char:FindFirstChild("EnemyESP")
-			local isAlly = (getgenv().TeamCheck and player.Team == LocalPlayer.Team)
+			local hl = char:FindFirstChild("EnemyESP")
+			local isAlly = getgenv().TeamCheck and player.Team == LocalPlayer.Team
 
-			if getgenv().ESPAtivado and not isAlly then
-				if not highlight then
+			if isAlly then
+				if hl then hl:Destroy() end
+			else
+				if not hl then
 					local esp = Instance.new("Highlight")
 					esp.Name = "EnemyESP"
 					esp.FillColor = Color3.new(1, 0, 0)
@@ -131,19 +143,14 @@ RunService.RenderStepped:Connect(function()
 					esp.Adornee = char
 					esp.Parent = char
 				else
-					-- garantir que Adornee continua correto
-					highlight.Adornee = char
-				end
-			else
-				if highlight then
-					highlight:Destroy()
+					hl.Adornee = char
 				end
 			end
 		end
 	end
 end)
 
--- ✅ Toggles
+-- Toggles
 AimbotTab:CreateToggle({
 	Name = "Aimbot",
 	CurrentValue = false,
