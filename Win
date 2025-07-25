@@ -1,26 +1,27 @@
--- Carregar Rayfield
+-- Carrega Rayfield
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
 
-getgenv().ESPAtivado = false
 getgenv().AimbotAtivado = false
+getgenv().ESPAtivado = false
+getgenv().TeamCheck = false
 getgenv().DeadCheck = false
 getgenv().WallCheck = false
 
--- Criar interface principal
+-- Cria janela principal
 local Window = Rayfield:CreateWindow({
 	Name = "Red Light, Green Light and Glass Bridge",
-	LoadingTitle = "Carregando Interface...",
-	LoadingSubtitle = "by David",
+	LoadingTitle = "Carregando...",
+	LoadingSubtitle = "Script by David",
 	ConfigurationSaving = { Enabled = false },
 	KeySystem = false
 })
 
--- Função de teleport
+-- Função de teleporte
 local function teleportTo(pos)
 	local char = LocalPlayer.Character
 	if char and char:FindFirstChild("HumanoidRootPart") then
@@ -51,92 +52,95 @@ AutoWinTab:CreateButton({
 	end
 })
 
--- ESP Highlight com cores por time
-
+-- ESP Highlight
 local function CriarOuAtualizarESP(player)
 	if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
 	if not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0 then return end
 
-	local char = player.Character
-	local isAlly = player.TeamColor == LocalPlayer.TeamColor
-	local esp = char:FindFirstChild("EnemyESP")
-
-	if not esp then
-		esp = Instance.new("Highlight")
-		esp.Name = "EnemyESP"
-		esp.FillTransparency = 0.5
-		esp.OutlineTransparency = 0
-		esp.Parent = char
-		esp.Adornee = char
+	local highlight = player.Character:FindFirstChild("EnemyESP")
+	if not highlight then
+		highlight = Instance.new("Highlight")
+		highlight.Name = "EnemyESP"
+		highlight.FillTransparency = 0.5
+		highlight.OutlineTransparency = 0
+		highlight.Adornee = player.Character
+		highlight.Parent = player.Character
 	end
 
-	esp.FillColor = isAlly and Color3.fromRGB(0, 0, 255) or Color3.fromRGB(255, 0, 0)
-	esp.OutlineColor = esp.FillColor
+	local isAlly = player.TeamColor == LocalPlayer.TeamColor
+	highlight.FillColor = isAlly and Color3.fromRGB(0, 0, 255) or Color3.fromRGB(255, 0, 0)
+	highlight.OutlineColor = highlight.FillColor
 end
 
 local function RemoverESP(player)
 	if player.Character then
 		local esp = player.Character:FindFirstChild("EnemyESP")
-		if esp then
-			esp:Destroy()
+		if esp then esp:Destroy() end
+	end
+end
+
+local function AtualizarTodosESPs()
+	if getgenv().ESPAtivado then
+		for _, player in pairs(Players:GetPlayers()) do
+			if player ~= LocalPlayer then
+				CriarOuAtualizarESP(player)
+			end
+		end
+	else
+		for _, player in pairs(Players:GetPlayers()) do
+			if player ~= LocalPlayer then
+				RemoverESP(player)
+			end
 		end
 	end
 end
 
-local function AtualizarESPParaTodos()
-	for _, player in pairs(Players:GetPlayers()) do
-		if player ~= LocalPlayer then
-			CriarOuAtualizarESP(player)
-		end
+-- Atualização do ESP a cada 1 segundo
+task.spawn(function()
+	while true do
+		AtualizarTodosESPs()
+		wait(1)
 	end
-end
+end)
 
-local function ConectarCharacterESP(player)
+-- Detecção de novos jogadores e respawns
+local function ConectarJogador(player)
 	player.CharacterAdded:Connect(function()
-		wait(0.5) -- esperar personagem carregar
+		wait(1)
 		if getgenv().ESPAtivado then
 			CriarOuAtualizarESP(player)
 		end
 	end)
+
+	if player.Character and getgenv().ESPAtivado then
+		CriarOuAtualizarESP(player)
+	end
 end
 
--- Conectar para todos jogadores já existentes e novos jogadores
 for _, player in pairs(Players:GetPlayers()) do
 	if player ~= LocalPlayer then
-		ConectarCharacterESP(player)
+		ConectarJogador(player)
 	end
 end
 
 Players.PlayerAdded:Connect(function(player)
 	if player ~= LocalPlayer then
-		ConectarCharacterESP(player)
+		ConectarJogador(player)
 	end
 end)
 
-RunService.RenderStepped:Connect(function()
-	if getgenv().ESPAtivado then
-		AtualizarESPParaTodos()
-	else
-		for _, player in pairs(Players:GetPlayers()) do
-			RemoverESP(player)
-		end
-	end
-end)
-
--- Função de visibilidade (wall check)
-local function IsVisible(targetPart)
-	if not targetPart then return false end
+-- Wall check
+local function IsVisible(part)
 	local origin = Camera.CFrame.Position
-	local direction = (targetPart.Position - origin)
-	local raycastParams = RaycastParams.new()
-	raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
-	raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-	raycastParams.IgnoreWater = true
-	local result = workspace:Raycast(origin, direction, raycastParams)
-	return not result or result.Instance:IsDescendantOf(targetPart.Parent)
+	local direction = (part.Position - origin)
+	local params = RaycastParams.new()
+	params.FilterDescendantsInstances = {LocalPlayer.Character}
+	params.FilterType = Enum.RaycastFilterType.Blacklist
+	local result = workspace:Raycast(origin, direction, params)
+	return not result or result.Instance:IsDescendantOf(part.Parent)
 end
 
--- Função Aimbot
+-- Aimbot alvo mais próximo
 local function GetClosestTarget()
 	local closest = nil
 	local shortest = math.huge
@@ -145,6 +149,7 @@ local function GetClosestTarget()
 		if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
 			if getgenv().DeadCheck and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health <= 0 then continue end
 			if getgenv().WallCheck and not IsVisible(player.Character.Head) then continue end
+			if getgenv().TeamCheck and player.TeamColor == LocalPlayer.TeamColor then continue end
 
 			local screenPos, onScreen = Camera:WorldToViewportPoint(player.Character.Head.Position)
 			if onScreen then
@@ -159,6 +164,7 @@ local function GetClosestTarget()
 	return closest
 end
 
+-- Aimbot loop
 RunService.RenderStepped:Connect(function()
 	if getgenv().AimbotAtivado then
 		local target = GetClosestTarget()
@@ -184,6 +190,14 @@ AimbotTab:CreateToggle({
 	CurrentValue = false,
 	Callback = function(Value)
 		getgenv().ESPAtivado = Value
+	end
+})
+
+AimbotTab:CreateToggle({
+	Name = "Team Check",
+	CurrentValue = false,
+	Callback = function(Value)
+		getgenv().TeamCheck = Value
 	end
 })
 
