@@ -6,9 +6,7 @@ local Window = Rayfield:CreateWindow({
 	Name = "Red Light, Green Light and Glass Bridge",
 	LoadingTitle = "Carregando Interface...",
 	LoadingSubtitle = "by David",
-	ConfigurationSaving = {
-		Enabled = false
-	},
+	ConfigurationSaving = { Enabled = false },
 	Discord = { Enabled = false },
 	KeySystem = false
 })
@@ -114,7 +112,7 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- 🔴 ESP contínuo com remoção e team check
+-- 🔴 ESP contínuo com remoção + atualização por troca de time
 RunService.RenderStepped:Connect(function()
 	for _, player in pairs(Players:GetPlayers()) do
 		if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
@@ -132,6 +130,9 @@ RunService.RenderStepped:Connect(function()
 					esp.OutlineTransparency = 0
 					esp.Adornee = char
 					esp.Parent = char
+				else
+					-- garantir que Adornee continua correto
+					highlight.Adornee = char
 				end
 			else
 				if highlight then
