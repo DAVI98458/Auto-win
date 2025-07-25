@@ -54,10 +54,9 @@ local AimbotTab = Window:CreateTab("Aimbot", 6034287514)
 
 -- Variáveis globais
 getgenv().AimbotAtivado = false
-getgenv().TeamCheck = false
+getgenv().ESPAtivado = false
 getgenv().DeadCheck = false
 getgenv().WallCheck = false
-getgenv().ESPAtivado = false
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -77,20 +76,19 @@ local function IsVisible(targetPart)
 	return not result or result.Instance:IsDescendantOf(targetPart.Parent)
 end
 
--- Buscar alvo mais próximo
+-- Aimbot alvo mais próximo
 local function GetClosestTarget()
 	local closestPlayer = nil
 	local shortestDistance = math.huge
 
 	for _, player in pairs(Players:GetPlayers()) do
 		if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
-			if getgenv().TeamCheck and player.Team == LocalPlayer.Team then continue end
 			if getgenv().DeadCheck and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health <= 0 then continue end
 			if getgenv().WallCheck and not IsVisible(player.Character.Head) then continue end
 
 			local pos, onScreen = Camera:WorldToViewportPoint(player.Character.Head.Position)
 			if onScreen then
-				local dist = (Vector2.new(pos.X, pos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).Magnitude
+				local dist = (Vector2.new(pos.X, pos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
 				if dist < shortestDistance then
 					shortestDistance = dist
 					closestPlayer = player
@@ -112,39 +110,32 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- ESP contínuo com TeamCheck dinâmico
+-- ESP dinâmico com cor por time
 RunService.RenderStepped:Connect(function()
-	if not getgenv().ESPAtivado then
-		for _, player in pairs(Players:GetPlayers()) do
-			if player ~= LocalPlayer and player.Character then
-				local hl = player.Character:FindFirstChild("EnemyESP")
-				if hl then hl:Destroy() end
-			end
-		end
-		return
-	end
-
 	for _, player in pairs(Players:GetPlayers()) do
 		if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
 			local char = player.Character
 			local hl = char:FindFirstChild("EnemyESP")
-			local isAlly = getgenv().TeamCheck and player.Team == LocalPlayer.Team
 
-			if isAlly then
-				if hl then hl:Destroy() end
-			else
+			if getgenv().ESPAtivado then
+				local color = (player.Team == LocalPlayer.Team) and Color3.fromRGB(0, 0, 255) or Color3.fromRGB(255, 0, 0)
+
 				if not hl then
 					local esp = Instance.new("Highlight")
 					esp.Name = "EnemyESP"
-					esp.FillColor = Color3.new(1, 0, 0)
-					esp.OutlineColor = Color3.new(1, 0, 0)
 					esp.FillTransparency = 0.5
 					esp.OutlineTransparency = 0
 					esp.Adornee = char
+					esp.FillColor = color
+					esp.OutlineColor = color
 					esp.Parent = char
 				else
+					hl.FillColor = color
+					hl.OutlineColor = color
 					hl.Adornee = char
 				end
+			else
+				if hl then hl:Destroy() end
 			end
 		end
 	end
@@ -154,39 +145,31 @@ end)
 AimbotTab:CreateToggle({
 	Name = "Aimbot",
 	CurrentValue = false,
-	Callback = function(value)
-		getgenv().AimbotAtivado = value
+	Callback = function(Value)
+		getgenv().AimbotAtivado = Value
 	end
 })
 
 AimbotTab:CreateToggle({
-	Name = "ESP Enemy",
+	Name = "ESP All",
 	CurrentValue = false,
-	Callback = function(value)
-		getgenv().ESPAtivado = value
-	end
-})
-
-AimbotTab:CreateToggle({
-	Name = "Team Check",
-	CurrentValue = false,
-	Callback = function(value)
-		getgenv().TeamCheck = value
+	Callback = function(Value)
+		getgenv().ESPAtivado = Value
 	end
 })
 
 AimbotTab:CreateToggle({
 	Name = "Dead Check",
 	CurrentValue = false,
-	Callback = function(value)
-		getgenv().DeadCheck = value
+	Callback = function(Value)
+		getgenv().DeadCheck = Value
 	end
 })
 
 AimbotTab:CreateToggle({
 	Name = "Wall Check",
 	CurrentValue = false,
-	Callback = function(value)
-		getgenv().WallCheck = value
+	Callback = function(Value)
+		getgenv().WallCheck = Value
 	end
 })
