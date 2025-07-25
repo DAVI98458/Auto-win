@@ -1,7 +1,7 @@
--- Carregar Rayfield (certifique-se de ter Rayfield disponível)
+-- ✅ Carregar Rayfield
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
--- Criar Janela
+-- ✅ Criar Janela
 local Window = Rayfield:CreateWindow({
 	Name = "Red Light, Green Light and Glass Bridge",
 	LoadingTitle = "Carregando Interface...",
@@ -9,63 +9,44 @@ local Window = Rayfield:CreateWindow({
 	ConfigurationSaving = {
 		Enabled = false
 	},
-        Discord = {
-        	Enabled = false
-    	},
+	Discord = { Enabled = false },
 	KeySystem = false
 })
 
--- Criar Aba
-local Tab = Window:CreateTab("Auto Win", 4483362458) -- Ícone opcional
+-- ✅ Aba: Auto Win
+local AutoWinTab = Window:CreateTab("Auto Win", 4483362458)
 
--- Função utilitária para teleportar jogador
-local function teleportTo(position)
-	local character = game.Players.LocalPlayer.Character
-	if character and character:FindFirstChild("HumanoidRootPart") then
-		character.HumanoidRootPart.CFrame = CFrame.new(position)
+local function teleportTo(pos)
+	local char = game.Players.LocalPlayer.Character
+	if char and char:FindFirstChild("HumanoidRootPart") then
+		char.HumanoidRootPart.CFrame = CFrame.new(pos)
 	end
 end
 
--- Botão: Auto Win Glass Bridge
-Tab:CreateButton({
+AutoWinTab:CreateButton({
 	Name = "Auto Win Glass Bridge",
 	Callback = function()
 		Rayfield:Notify({
 			Title = "Auto Win Glass Bridge",
 			Content = "Wait 3 seconds",
-			Duration = 3,
-			Image = 4483362458,
-			Actions = {}
+			Duration = 3
 		})
-
-		-- Primeira posição
 		teleportTo(Vector3.new(-22, 161, 1546))
-
 		wait(3)
-
-		-- Segunda posição
 		teleportTo(Vector3.new(195, 161, 1548))
 	end
 })
 
--- Botão: Auto Win Red Light and Green Light
-Tab:CreateButton({
+AutoWinTab:CreateButton({
 	Name = "Auto Win Red Light and Green Light",
 	Callback = function()
 		Rayfield:Notify({
 			Title = "Auto Win Red Light, Green Light",
 			Content = "Wait 4 seconds",
-			Duration = 4,
-			Image = 4483362458,
-			Actions = {}
+			Duration = 4
 		})
-
-		-- Primeira posição
 		teleportTo(Vector3.new(338, 4, -189))
-
 		wait(4)
-
-		-- Segunda posição
 		teleportTo(Vector3.new(-249, 4, -184))
 	end
 })
@@ -73,7 +54,7 @@ Tab:CreateButton({
 -- ✅ Aba: Aimbot
 local AimbotTab = Window:CreateTab("Aimbot", 6034287514)
 
--- Variáveis globais
+-- 🔧 Variáveis globais
 getgenv().AimbotAtivado = false
 getgenv().TeamCheck = false
 getgenv().DeadCheck = false
@@ -85,7 +66,7 @@ local RunService = game:GetService("RunService")
 local Camera = workspace.CurrentCamera
 local LocalPlayer = Players.LocalPlayer
 
--- Wall Check: linha de visão
+-- 🔍 Wall Check (visão)
 local function IsVisible(targetPart)
 	if not targetPart then return false end
 	local origin = Camera.CFrame.Position
@@ -98,7 +79,7 @@ local function IsVisible(targetPart)
 	return not result or result.Instance:IsDescendantOf(targetPart.Parent)
 end
 
--- Aimbot alvo mais próximo
+-- 🎯 Buscar alvo mais próximo
 local function GetClosestTarget()
 	local closestPlayer = nil
 	local shortestDistance = math.huge
@@ -123,7 +104,7 @@ local function GetClosestTarget()
 	return closestPlayer
 end
 
--- Loop de Aimbot
+-- 🧠 Loop de Aimbot
 RunService.RenderStepped:Connect(function()
 	if getgenv().AimbotAtivado then
 		local target = GetClosestTarget()
@@ -133,43 +114,35 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- Função para aplicar/remover ESP
-local function AtualizarESP()
-	for _, player in pairs(Players:GetPlayers()) do
-		if player ~= LocalPlayer then
-			local char = player.Character
-			if char then
-				local highlight = char:FindFirstChild("EnemyESP")
+-- 🔴 Atualização contínua do ESP
+RunService.RenderStepped:Connect(function()
+	if getgenv().ESPAtivado then
+		for _, player in pairs(Players:GetPlayers()) do
+			if player ~= LocalPlayer and player.Character then
+				local char = player.Character
+				local esp = char:FindFirstChild("EnemyESP")
 
-				if getgenv().ESPAtivado then
-					if not highlight then
-						local esp = Instance.new("Highlight")
-						esp.Name = "EnemyESP"
-						esp.FillColor = Color3.new(1, 0, 0)
-						esp.OutlineColor = Color3.new(1, 0, 0)
-						esp.Parent = char
-					end
-				else
-					if highlight then
-						highlight:Destroy()
-					end
+				if not esp then
+					local highlight = Instance.new("Highlight")
+					highlight.Name = "EnemyESP"
+					highlight.FillColor = Color3.new(1, 0, 0)
+					highlight.OutlineColor = Color3.new(1, 0, 0)
+					highlight.FillTransparency = 0.5
+					highlight.OutlineTransparency = 0
+					highlight.Parent = char
+				end
+			elseif player.Character and not getgenv().ESPAtivado then
+				local highlight = player.Character:FindFirstChild("EnemyESP")
+				if highlight then
+					highlight:Destroy()
 				end
 			end
 		end
 	end
-end
-
--- Monitorar novos jogadores para ESP
-Players.PlayerAdded:Connect(function(player)
-	player.CharacterAdded:Connect(function()
-		wait(1)
-		if getgenv().ESPAtivado then
-			AtualizarESP()
-		end
-	end)
 end)
 
--- Aimbot Toggle
+-- ✅ Toggles na interface
+
 AimbotTab:CreateToggle({
 	Name = "Aimbot",
 	CurrentValue = false,
@@ -178,17 +151,14 @@ AimbotTab:CreateToggle({
 	end
 })
 
--- ESP Enemy Toggle
 AimbotTab:CreateToggle({
 	Name = "ESP Enemy",
 	CurrentValue = false,
 	Callback = function(value)
 		getgenv().ESPAtivado = value
-		AtualizarESP()
 	end
 })
 
--- Team Check Toggle
 AimbotTab:CreateToggle({
 	Name = "Team Check",
 	CurrentValue = false,
@@ -197,7 +167,6 @@ AimbotTab:CreateToggle({
 	end
 })
 
--- Dead Check Toggle
 AimbotTab:CreateToggle({
 	Name = "Dead Check",
 	CurrentValue = false,
@@ -206,7 +175,6 @@ AimbotTab:CreateToggle({
 	end
 })
 
--- Wall Check Toggle
 AimbotTab:CreateToggle({
 	Name = "Wall Check",
 	CurrentValue = false,
