@@ -233,7 +233,7 @@ CreditTab:CreateParagraph({
 
 CreditTab:CreateParagraph({
 	Title = "Programador",
-	Content = "@shadown_gd and @Shadownchavoso"
+	Content = "@shadown_gd and @Shadown_chavoso"
 })
 
 CreditTab:CreateButton({
