@@ -1,4 +1,4 @@
--- Carrega Rayfield
+-- Rayfield UI
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 local Players = game:GetService("Players")
@@ -12,7 +12,6 @@ getgenv().TeamCheck = false
 getgenv().DeadCheck = false
 getgenv().WallCheck = false
 
--- Cria janela
 local Window = Rayfield:CreateWindow({
 	Name = "Red Light, Green Light and Glass Bridge",
 	LoadingTitle = "Carregando...",
@@ -21,7 +20,6 @@ local Window = Rayfield:CreateWindow({
 	KeySystem = false
 })
 
--- Função de teleporte
 local function teleportTo(pos)
 	local char = LocalPlayer.Character
 	if char and char:FindFirstChild("HumanoidRootPart") then
@@ -29,7 +27,7 @@ local function teleportTo(pos)
 	end
 end
 
--- Aba Auto Win
+-- Auto Win Tab
 local AutoWinTab = Window:CreateTab("Auto Win", 4483362458)
 
 AutoWinTab:CreateButton({
@@ -107,7 +105,6 @@ local function AtualizarESPNomes()
 	end
 end
 
--- Atualização periódica
 task.spawn(function()
 	while true do
 		AtualizarESPNomes()
@@ -115,7 +112,6 @@ task.spawn(function()
 	end
 end)
 
--- Conecta eventos de entrada e respawn
 local function ConectarJogador(player)
 	player.CharacterAdded:Connect(function()
 		wait(1)
@@ -224,5 +220,30 @@ AimbotTab:CreateToggle({
 	CurrentValue = false,
 	Callback = function(Value)
 		getgenv().WallCheck = Value
+	end
+})
+
+-- Aba Créditos
+local CreditTab = Window:CreateTab("Crédits", 4483362458)
+
+CreditTab:CreateParagraph({
+	Title = "Direitor",
+	Content = "@shadown_gd"
+})
+
+CreditTab:CreateParagraph({
+	Title = "Programador",
+	Content = "@shadown_gd and @Shadownchavoso"
+})
+
+CreditTab:CreateButton({
+	Name = "DISCORD",
+	Callback = function()
+		setclipboard("https://discord.gg/baSasGFhaG")
+		Rayfield:Notify({
+			Title = "Link copiado!",
+			Content = "Convite do Discord foi copiado com sucesso.",
+			Duration = 3
+		})
 	end
 })
