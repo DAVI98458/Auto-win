@@ -12,7 +12,7 @@ getgenv().TeamCheck = false
 getgenv().DeadCheck = false
 getgenv().WallCheck = false
 
--- Cria janela principal
+-- Cria janela
 local Window = Rayfield:CreateWindow({
 	Name = "Red Light, Green Light and Glass Bridge",
 	LoadingTitle = "Carregando...",
@@ -59,68 +59,73 @@ AutoWinTab:CreateButton({
 	end
 })
 
--- ESP Highlight
-local function CriarOuAtualizarESP(player)
-	if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
-	if not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0 then return end
+-- ESP com Nickname
+local function CriarESPTexto(player)
+	local char = player.Character
+	if not char or not char:FindFirstChild("Head") then return end
+	if char:FindFirstChild("NameTagESP") then return end
 
-	local highlight = player.Character:FindFirstChild("EnemyESP")
-	if not highlight then
-		highlight = Instance.new("Highlight")
-		highlight.Name = "EnemyESP"
-		highlight.FillTransparency = 0.5
-		highlight.OutlineTransparency = 0
-		highlight.Adornee = player.Character
-		highlight.Parent = player.Character
-	end
+	local adornee = char:FindFirstChild("Head")
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "NameTagESP"
+	gui.AlwaysOnTop = true
+	gui.Size = UDim2.new(0, 100, 0, 20)
+	gui.StudsOffset = Vector3.new(0, 2, 0)
+	gui.Adornee = adornee
 
-	local isAlly = player.TeamColor == LocalPlayer.TeamColor
-	highlight.FillColor = isAlly and Color3.fromRGB(0, 0, 255) or Color3.fromRGB(255, 0, 0)
-	highlight.OutlineColor = highlight.FillColor
+	local label = Instance.new("TextLabel")
+	label.Parent = gui
+	label.BackgroundTransparency = 1
+	label.Size = UDim2.new(1, 0, 1, 0)
+	label.Text = player.Name
+	label.Font = Enum.Font.SourceSansBold
+	label.TextScaled = false
+	label.TextSize = 9
+	label.TextStrokeTransparency = 0.5
+	label.TextColor3 = (player.TeamColor == LocalPlayer.TeamColor) and Color3.fromRGB(0, 0, 255) or Color3.fromRGB(255, 0, 0)
+
+	gui.Parent = char
 end
 
-local function RemoverESP(player)
-	if player.Character then
-		local esp = player.Character:FindFirstChild("EnemyESP")
-		if esp then esp:Destroy() end
+local function RemoverESPTexto(player)
+	if player.Character and player.Character:FindFirstChild("NameTagESP") then
+		player.Character.NameTagESP:Destroy()
 	end
 end
 
-local function AtualizarTodosESPs()
+local function AtualizarESPNomes()
 	if getgenv().ESPAtivado then
 		for _, player in pairs(Players:GetPlayers()) do
 			if player ~= LocalPlayer then
-				CriarOuAtualizarESP(player)
+				CriarESPTexto(player)
 			end
 		end
 	else
 		for _, player in pairs(Players:GetPlayers()) do
-			if player ~= LocalPlayer then
-				RemoverESP(player)
-			end
+			RemoverESPTexto(player)
 		end
 	end
 end
 
--- Atualização do ESP a cada 1 segundo
+-- Atualização periódica
 task.spawn(function()
 	while true do
-		AtualizarTodosESPs()
+		AtualizarESPNomes()
 		wait(1)
 	end
 end)
 
--- Detecção de novos jogadores e respawns
+-- Conecta eventos de entrada e respawn
 local function ConectarJogador(player)
 	player.CharacterAdded:Connect(function()
 		wait(1)
 		if getgenv().ESPAtivado then
-			CriarOuAtualizarESP(player)
+			CriarESPTexto(player)
 		end
 	end)
 
 	if player.Character and getgenv().ESPAtivado then
-		CriarOuAtualizarESP(player)
+		CriarESPTexto(player)
 	end
 end
 
@@ -136,7 +141,7 @@ Players.PlayerAdded:Connect(function(player)
 	end
 end)
 
--- Wall check
+-- Aimbot
 local function IsVisible(part)
 	local origin = Camera.CFrame.Position
 	local direction = (part.Position - origin)
@@ -147,7 +152,6 @@ local function IsVisible(part)
 	return not result or result.Instance:IsDescendantOf(part.Parent)
 end
 
--- Aimbot alvo mais próximo
 local function GetClosestTarget()
 	local closest = nil
 	local shortest = math.huge
@@ -171,7 +175,6 @@ local function GetClosestTarget()
 	return closest
 end
 
--- Aimbot loop
 RunService.RenderStepped:Connect(function()
 	if getgenv().AimbotAtivado then
 		local target = GetClosestTarget()
@@ -193,7 +196,7 @@ AimbotTab:CreateToggle({
 })
 
 AimbotTab:CreateToggle({
-	Name = "ESP All",
+	Name = "ESP All Nickname",
 	CurrentValue = false,
 	Callback = function(Value)
 		getgenv().ESPAtivado = Value
