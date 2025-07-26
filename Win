@@ -52,6 +52,13 @@ AutoWinTab:CreateButton({
 	end
 })
 
+AutoWinTab:CreateButton({
+	Name = "Safezone",
+	Callback = function()
+		teleportTo(Vector3.new(-60, 100, 42))
+	end
+})
+
 -- ESP Highlight
 local function CriarOuAtualizarESP(player)
 	if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
