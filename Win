@@ -212,7 +212,7 @@ ModTab:CreateToggle({
         Rayfield:Notify({
             Title = "Noclip",
             Content = v and "Ativado" or "Desativado",
-            Duration = 2
+            Duration = 1
         })
     end
 })
@@ -235,7 +235,7 @@ ModTab:CreateToggle({
         Rayfield:Notify({
             Title = "Inf Jump",
             Content = v and "Ativado" or "Desativado",
-            Duration = 2
+            Duration = 1
         })
     end
 })
