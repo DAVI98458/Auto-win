@@ -78,7 +78,7 @@ local function CriarESPTexto(player)
     label.Size = UDim2.new(1,0,1,0)
     label.Text = player.Name
     label.Font = Enum.Font.SourceSansBold
-    label.TextSize = 9
+    label.TextSize = 11
     label.TextStrokeTransparency = 0.5
     label.TextColor3 = (player.TeamColor == LocalPlayer.TeamColor) and Color3.fromRGB(0,0,255) or Color3.fromRGB(255,0,0)
     gui.Parent = char
