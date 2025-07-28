@@ -55,7 +55,7 @@ AutoWinTab:CreateButton({
 AutoWinTab:CreateButton({
     Name = "Safezone",
     Callback = function()
-        teleportTo(Vector3.new(386, 19, -111))
+        teleportTo(Vector3.new(383, 4, -80))
     end
 })
 
