@@ -29,7 +29,7 @@ local Window = Rayfield:CreateWindow({
 		Subtitle = "Acesso necessário",
 		Note = "The key link has already been copied",
 		FileName = "ScriptKey_v1",
-		SaveKey = false,
+		SaveKey = true,
 		Key = "11.7🥳"
 	}
 })
