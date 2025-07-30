@@ -1,171 +1,183 @@
--- Copia automaticamente o link da key
+-- Copiar link da key ao iniciar
 setclipboard("https://lootdest.org/s?nJO3MzzM")
-
--- Carrega Rayfield
-local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 -- Serviços
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
+local UIS = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
--- Variáveis globais
-getgenv().AimbotAtivado = false
-getgenv().ESPAtivado = false
-getgenv().TeamCheck = false
-getgenv().DeadCheck = false
-getgenv().WallCheck = false
-getgenv().NoclipAtivado = false
-getgenv().InfJumpAtivado = false
+-- Variáveis de controle
+local ESPAtivado = false
+local AimbotAtivado = false
+local TeamCheck = false
+local DeadCheck = false
+local WallCheck = false
+local InfJumpAtivado = false
+local NoClipAtivado = false
 
--- Sistema de janela com chave
+-- Rayfield UI
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 local Window = Rayfield:CreateWindow({
 	Name = "Red Light, Green Light and Glass Bridge",
-	LoadingTitle = "Loading...",
-	LoadingSubtitle = "By @shadown_gd",
+	LoadingTitle = "Iniciando...",
+	LoadingSubtitle = "by @shadown_gd",
 	KeySystem = true,
 	KeySettings = {
-		Title = "Script Key",
-		Subtitle = "Enter the key to use",
+		Title = "Key System",
+		Subtitle = "Acesso necessário",
 		Note = "The key link has already been copied",
-		FileName = "KeyFile",
+		FileName = "ScriptKey_v1",
 		SaveKey = false,
-		GrabKeyFromSite = false,
 		Key = "11.7🥳"
 	}
 })
 
--- Função de teleporte
-local function teleportTo(pos)
-	local char = LocalPlayer.Character
-	if char and char:FindFirstChild("HumanoidRootPart") then
-		char.HumanoidRootPart.CFrame = CFrame.new(pos)
-	end
-end
-
--- Função de ESP
-local function createESP(player)
-	if player == LocalPlayer then return end
-	if player.Character and not player.Character:FindFirstChild("ESPName") then
-		local head = player.Character:FindFirstChild("Head")
-		if head then
-			local tag = Instance.new("BillboardGui", head)
-			tag.Name = "ESPName"
-			tag.Size = UDim2.new(0, 100, 0, 40)
-			tag.AlwaysOnTop = true
-			tag.StudsOffset = Vector3.new(0, 2, 0)
-
-			local txt = Instance.new("TextLabel", tag)
-			txt.Size = UDim2.new(1, 0, 1, 0)
-			txt.BackgroundTransparency = 1
-			txt.Text = player.Name
-			txt.Font = Enum.Font.SourceSansBold
-			txt.TextSize = 11
-			txt.TextColor3 = player.TeamColor.Color
-			txt.TextStrokeTransparency = 0.5
-			txt.TextScaled = false
+-- Funções de ESP
+local function limparESP()
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if plr.Character and plr.Character:FindFirstChild("Head") then
+			local gui = plr.Character.Head:FindFirstChild("ESPName")
+			if gui then
+				gui:Destroy()
+			end
 		end
 	end
 end
 
--- Atualiza ESP a cada segundo
+local function atualizarESP()
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if plr.Character and plr.Character:FindFirstChild("Head") and not plr.Character.Head:FindFirstChild("ESPName") then
+			local gui = Instance.new("BillboardGui")
+			gui.Name = "ESPName"
+			gui.Size = UDim2.new(0, 100, 0, 40)
+			gui.StudsOffset = Vector3.new(0, 2.5, 0)
+			gui.AlwaysOnTop = true
+			gui.Adornee = plr.Character.Head
+			gui.Parent = plr.Character.Head
+
+			local label = Instance.new("TextLabel", gui)
+			label.Size = UDim2.new(1, 0, 1, 0)
+			label.BackgroundTransparency = 1
+			label.Text = plr.Name
+			label.TextColor3 = plr.TeamColor.Color
+			label.TextSize = 11
+			label.Font = Enum.Font.SourceSansBold
+			label.TextStrokeTransparency = 0.5
+		end
+	end
+end
+
 task.spawn(function()
 	while true do
-		wait(1)
 		if ESPAtivado then
-			for _, p in pairs(Players:GetPlayers()) do
-				if p.Character then
-					createESP(p)
-				end
-			end
+			atualizarESP()
 		else
-			for _, p in pairs(Players:GetPlayers()) do
-				if p.Character and p.Character:FindFirstChild("ESPName") then
-					p.Character:FindFirstChild("ESPName"):Destroy()
-				end
-			end
+			limparESP()
 		end
+		task.wait(1)
 	end
 end)
 
--- Aba Auto Win
-local AutoWin = Window:CreateTab("Auto Win", 4483362458)
-
-AutoWin:CreateButton({
+-- Aba: Auto Win
+local AutoTab = Window:CreateTab("Auto Win")
+AutoTab:CreateButton({
 	Name = "Auto Win Glass Bridge",
 	Callback = function()
-		Rayfield:Notify({Title = "Aguarde", Content = "Wait 3 seconds", Duration = 3})
-		teleportTo(Vector3.new(-22, 161, 1546))
-		wait(3)
-		teleportTo(Vector3.new(195, 161, 1548))
+		Rayfield:Notify({Title = "Glass Bridge", Content = "wait 3 seconds", Duration = 3})
+		LocalPlayer.Character:MoveTo(Vector3.new(-22, 161, 1546))
+		task.wait(3)
+		LocalPlayer.Character:MoveTo(Vector3.new(195, 161, 1548))
 	end
 })
-
-AutoWin:CreateButton({
+AutoTab:CreateButton({
 	Name = "Auto Win Red Light and Green Light",
 	Callback = function()
-		Rayfield:Notify({Title = "Aguarde", Content = "Wait 4 seconds", Duration = 4})
-		teleportTo(Vector3.new(338, 4, -189))
-		wait(4)
-		teleportTo(Vector3.new(-249, 4, -184))
+		Rayfield:Notify({Title = "Red Light Green Light", Content = "wait 4 seconds", Duration = 4})
+		LocalPlayer.Character:MoveTo(Vector3.new(338, 4, -189))
+		task.wait(4)
+		LocalPlayer.Character:MoveTo(Vector3.new(-249, 4, -184))
 	end
 })
-
-AutoWin:CreateButton({
+AutoTab:CreateButton({
 	Name = "Safezone",
 	Callback = function()
-		teleportTo(Vector3.new(383, 4, -80))
+		LocalPlayer.Character:MoveTo(Vector3.new(383, 4, -80))
 	end
 })
 
--- Aba Aimbot
-local Aimbot = Window:CreateTab("Aimbot", 4483362458)
-
-Aimbot:CreateToggle({
+-- Aba: Aimbot
+local AimbotTab = Window:CreateTab("Aimbot")
+AimbotTab:CreateToggle({
 	Name = "On Aimbot",
 	CurrentValue = false,
-	Callback = function(v)
-		AimbotAtivado = v
-	end
+	Callback = function(val) AimbotAtivado = val end
 })
-
-Aimbot:CreateToggle({
+AimbotTab:CreateToggle({
 	Name = "ESP All Nickname",
 	CurrentValue = false,
-	Callback = function(v)
-		ESPAtivado = v
-	end
+	Callback = function(val) ESPAtivado = val end
 })
-
-Aimbot:CreateToggle({
+AimbotTab:CreateToggle({
 	Name = "Team Check",
 	CurrentValue = false,
-	Callback = function(v)
-		TeamCheck = v
-	end
+	Callback = function(val) TeamCheck = val end
 })
-
-Aimbot:CreateToggle({
+AimbotTab:CreateToggle({
 	Name = "Dead Check",
 	CurrentValue = false,
-	Callback = function(v)
-		DeadCheck = v
-	end
+	Callback = function(val) DeadCheck = val end
 })
-
-Aimbot:CreateToggle({
+AimbotTab:CreateToggle({
 	Name = "Wall Check",
 	CurrentValue = false,
-	Callback = function(v)
-		WallCheck = v
-	end
+	Callback = function(val) WallCheck = val end
 })
 
--- Aba Modifiers
-local ModTab = Window:CreateTab("Modifiers", 4483362458)
+-- Aimbot funcional corrigido
+RunService.RenderStepped:Connect(function()
+	if not AimbotAtivado then return end
+	local target = nil
+	local shortest = math.huge
+	for _, plr in ipairs(Players:GetPlayers()) do
+		if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Head") then
+			local hum = plr.Character:FindFirstChildOfClass("Humanoid")
+			if hum and hum.Health > 0 then
+				if TeamCheck and plr.Team == LocalPlayer.Team then continue end
+				if DeadCheck and hum.Health <= 0 then continue end
 
+				if WallCheck then
+					local origin = Camera.CFrame.Position
+					local direction = (plr.Character.Head.Position - origin).Unit * 500
+					local raycastParams = RaycastParams.new()
+					raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
+					raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+					local raycastResult = workspace:Raycast(origin, direction, raycastParams)
+					if raycastResult and raycastResult.Instance and not raycastResult.Instance:IsDescendantOf(plr.Character) then
+						continue
+					end
+				end
+
+				local pos, onScreen = Camera:WorldToScreenPoint(plr.Character.Head.Position)
+				if onScreen then
+					local dist = (Vector2.new(pos.X, pos.Y) - UIS:GetMouseLocation()).Magnitude
+					if dist < shortest then
+						shortest = dist
+						target = plr
+					end
+				end
+			end
+		end
+	end
+
+	if target and target.Character and target.Character:FindFirstChild("Head") then
+		Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Character.Head.Position)
+	end
+end)
+
+-- Aba: Modifiers
+local ModTab = Window:CreateTab("Modifiers")
 ModTab:CreateSlider({
 	Name = "WalkSpeed",
 	Range = {16, 300},
@@ -176,7 +188,6 @@ ModTab:CreateSlider({
 		if hum then hum.WalkSpeed = v end
 	end
 })
-
 ModTab:CreateSlider({
 	Name = "JumpPower",
 	Range = {50, 500},
@@ -190,15 +201,13 @@ ModTab:CreateSlider({
 		end
 	end
 })
-
 ModTab:CreateToggle({
-	Name = "Noclip",
+	Name = "NoClip",
 	CurrentValue = false,
 	Callback = function(v)
-		NoclipAtivado = v
+		NoClipAtivado = v
 	end
 })
-
 ModTab:CreateToggle({
 	Name = "Infinite Jump",
 	CurrentValue = false,
@@ -207,44 +216,31 @@ ModTab:CreateToggle({
 	end
 })
 
--- Sistema de Noclip e Infinite Jump
+-- NoClip e InfJump
 RunService.Stepped:Connect(function()
-	if NoclipAtivado and LocalPlayer.Character then
-		for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
-			if v:IsA("BasePart") and v.CanCollide then
-				v.CanCollide = false
+	if NoClipAtivado and LocalPlayer.Character then
+		for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
+			if part:IsA("BasePart") then
+				part.CanCollide = false
 			end
 		end
 	end
 end)
 
-UserInputService.JumpRequest:Connect(function()
+UIS.JumpRequest:Connect(function()
 	if InfJumpAtivado and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
 		LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
 	end
 end)
 
--- Créditos
-local CreditTab = Window:CreateTab("Credits", 4483362458)
-
-CreditTab:CreateParagraph({
-	Title = "Diretor",
-	Content = "@shadown_gd"
-})
-
-CreditTab:CreateParagraph({
-	Title = "Programador",
-	Content = "@shadown_gd and @Shadownchavoso"
-})
-
-CreditTab:CreateButton({
+-- Aba: Credits
+local CredTab = Window:CreateTab("Credits")
+CredTab:CreateParagraph({Title = "Diretor", Content = "@shadown_gd"})
+CredTab:CreateParagraph({Title = "Programadores", Content = "@shadown_gd and @Shadownchavoso"})
+CredTab:CreateButton({
 	Name = "DISCORD",
 	Callback = function()
 		setclipboard("https://discord.gg/baSasGFhaG")
-		Rayfield:Notify({
-			Title = "Copiado!",
-			Content = "Link do Discord copiado para a área de transferência.",
-			Duration = 4
-		})
+		Rayfield:Notify({Title = "Copiado", Content = "Link do Discord copiado!", Duration = 3})
 	end
 })
