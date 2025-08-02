@@ -29,19 +29,17 @@ local Window = Rayfield:CreateWindow({
 		Subtitle = "Acesso necessário",
 		Note = "The key link has already been copied",
 		FileName = "ScriptKey_v1",
-		SaveKey = true,
+		SaveKey = false,
 		Key = "11.7🥳"
 	}
 })
 
--- Funções de ESP
+-- ESP
 local function limparESP()
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if plr.Character and plr.Character:FindFirstChild("Head") then
 			local gui = plr.Character.Head:FindFirstChild("ESPName")
-			if gui then
-				gui:Destroy()
-			end
+			if gui then gui:Destroy() end
 		end
 	end
 end
@@ -80,12 +78,11 @@ task.spawn(function()
 	end
 end)
 
--- Aba: Auto Win
+-- Auto Win
 local AutoTab = Window:CreateTab("Auto Win")
 AutoTab:CreateButton({
 	Name = "Auto Win Glass Bridge",
 	Callback = function()
-		Rayfield:Notify({Title = "Glass Bridge", Content = "wait 3 seconds", Duration = 3})
 		LocalPlayer.Character:MoveTo(Vector3.new(-22, 161, 1546))
 		task.wait(3)
 		LocalPlayer.Character:MoveTo(Vector3.new(195, 161, 1548))
@@ -94,7 +91,6 @@ AutoTab:CreateButton({
 AutoTab:CreateButton({
 	Name = "Auto Win Red Light and Green Light",
 	Callback = function()
-		Rayfield:Notify({Title = "Red Light Green Light", Content = "wait 4 seconds", Duration = 4})
 		LocalPlayer.Character:MoveTo(Vector3.new(338, 4, -189))
 		task.wait(4)
 		LocalPlayer.Character:MoveTo(Vector3.new(-249, 4, -184))
@@ -107,39 +103,17 @@ AutoTab:CreateButton({
 	end
 })
 
--- Aba: Aimbot
+-- Aimbot
 local AimbotTab = Window:CreateTab("Aimbot")
-AimbotTab:CreateToggle({
-	Name = "On Aimbot",
-	CurrentValue = false,
-	Callback = function(val) AimbotAtivado = val end
-})
-AimbotTab:CreateToggle({
-	Name = "ESP All Nickname",
-	CurrentValue = false,
-	Callback = function(val) ESPAtivado = val end
-})
-AimbotTab:CreateToggle({
-	Name = "Team Check",
-	CurrentValue = false,
-	Callback = function(val) TeamCheck = val end
-})
-AimbotTab:CreateToggle({
-	Name = "Dead Check",
-	CurrentValue = false,
-	Callback = function(val) DeadCheck = val end
-})
-AimbotTab:CreateToggle({
-	Name = "Wall Check",
-	CurrentValue = false,
-	Callback = function(val) WallCheck = val end
-})
+AimbotTab:CreateToggle({Name = "On Aimbot", CurrentValue = false, Callback = function(val) AimbotAtivado = val end})
+AimbotTab:CreateToggle({Name = "ESP All Nickname", CurrentValue = false, Callback = function(val) ESPAtivado = val end})
+AimbotTab:CreateToggle({Name = "Team Check", CurrentValue = false, Callback = function(val) TeamCheck = val end})
+AimbotTab:CreateToggle({Name = "Dead Check", CurrentValue = false, Callback = function(val) DeadCheck = val end})
+AimbotTab:CreateToggle({Name = "Wall Check", CurrentValue = false, Callback = function(val) WallCheck = val end})
 
--- Aimbot funcional corrigido
 RunService.RenderStepped:Connect(function()
 	if not AimbotAtivado then return end
-	local target = nil
-	local shortest = math.huge
+	local target, shortest = nil, math.huge
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if plr ~= LocalPlayer and plr.Character and plr.Character:FindFirstChild("Head") then
 			local hum = plr.Character:FindFirstChildOfClass("Humanoid")
@@ -154,7 +128,7 @@ RunService.RenderStepped:Connect(function()
 					raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
 					raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
 					local raycastResult = workspace:Raycast(origin, direction, raycastParams)
-					if raycastResult and raycastResult.Instance and not raycastResult.Instance:IsDescendantOf(plr.Character) then
+					if raycastResult and not raycastResult.Instance:IsDescendantOf(plr.Character) then
 						continue
 					end
 				end
@@ -176,7 +150,7 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
--- Aba: Modifiers
+-- Modifiers
 local ModTab = Window:CreateTab("Modifiers")
 ModTab:CreateSlider({
 	Name = "WalkSpeed",
@@ -201,28 +175,13 @@ ModTab:CreateSlider({
 		end
 	end
 })
-ModTab:CreateToggle({
-	Name = "NoClip",
-	CurrentValue = false,
-	Callback = function(v)
-		NoClipAtivado = v
-	end
-})
-ModTab:CreateToggle({
-	Name = "Infinite Jump",
-	CurrentValue = false,
-	Callback = function(v)
-		InfJumpAtivado = v
-	end
-})
+ModTab:CreateToggle({Name = "NoClip", CurrentValue = false, Callback = function(v) NoClipAtivado = v end})
+ModTab:CreateToggle({Name = "Infinite Jump", CurrentValue = false, Callback = function(v) InfJumpAtivado = v end})
 
--- NoClip e InfJump
 RunService.Stepped:Connect(function()
 	if NoClipAtivado and LocalPlayer.Character then
 		for _, part in pairs(LocalPlayer.Character:GetDescendants()) do
-			if part:IsA("BasePart") then
-				part.CanCollide = false
-			end
+			if part:IsA("BasePart") then part.CanCollide = false end
 		end
 	end
 end)
@@ -233,7 +192,7 @@ UIS.JumpRequest:Connect(function()
 	end
 end)
 
--- Aba: Credits
+-- Credits
 local CredTab = Window:CreateTab("Credits")
 CredTab:CreateParagraph({Title = "Diretor", Content = "@shadown_gd"})
 CredTab:CreateParagraph({Title = "Programadores", Content = "@shadown_gd and @Shadownchavoso"})
@@ -244,3 +203,24 @@ CredTab:CreateButton({
 		Rayfield:Notify({Title = "Copiado", Content = "Link do Discord copiado!", Duration = 3})
 	end
 })
+
+-- Tools
+local ToolsTab = Window:CreateTab("Tools")
+ToolsTab:CreateButton({
+	Name = "Tp Tool",
+	Callback = function()
+		local tool = Instance.new("Tool")
+		tool.RequiresHandle = false
+		tool.Name = "Teleport Tool"
+		tool.Parent = LocalPlayer.Backpack
+
+		tool.Activated:Connect(function()
+			local mouse = LocalPlayer:GetMouse()
+			if mouse then
+				local pos = mouse.Hit.Position
+				LocalPlayer.Character:MoveTo(pos + Vector3.new(0, 3, 0))
+			end
+		end)
+	end
+})
+ToolsTab:CreateParagraph({Title = "More stuff coming soon", Content = ""})
