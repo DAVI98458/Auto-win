@@ -1,4 +1,4 @@
--- Carregamento da Interface e Key
+-- Carregamento da Interface e Keyy
 setclipboard("https://lootdest.org/s?nJO3MzzM")
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 local Players, Workspace, RunService = game:GetService("Players"), game:GetService("Workspace"), game:GetService("RunService")
@@ -229,7 +229,7 @@ RunService.Stepped:Connect(function()
 			-- Aplica força para reduzir a velocidade da queda
 			if not antiFallVelocity then
 				antiFallVelocity = Instance.new("BodyVelocity")
-				antiFallVelocity.Velocity = Vector3.new(0, -10, 0) -- controla a velocidade descendente (ajuste aqui se quiser cair mais lento)
+				antiFallVelocity.Velocity = Vector3.new(0, -6, 0) -- controla a velocidade descendente (ajuste aqui se quiser cair mais lento)
 				antiFallVelocity.MaxForce = Vector3.new(0, math.huge, 0)
 				antiFallVelocity.Parent = rootPart
 			end
