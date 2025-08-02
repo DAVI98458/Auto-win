@@ -229,7 +229,7 @@ RunService.Stepped:Connect(function()
 			-- Aplica força para reduzir a velocidade da queda
 			if not antiFallVelocity then
 				antiFallVelocity = Instance.new("BodyVelocity")
-				antiFallVelocity.Velocity = Vector3.new(0, -15, 0) -- controla a velocidade descendente (ajuste aqui se quiser cair mais lento)
+				antiFallVelocity.Velocity = Vector3.new(0, -20, 0) -- controla a velocidade descendente (ajuste aqui se quiser cair mais lento)
 				antiFallVelocity.MaxForce = Vector3.new(0, math.huge, 0)
 				antiFallVelocity.Parent = rootPart
 			end
