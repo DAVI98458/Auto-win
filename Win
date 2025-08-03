@@ -330,3 +330,56 @@ CreditsTab:CreateButton({
 		Rayfield:Notify({Title = "Copied", Content = "Link copied to clipboard", Duration = 3})
 	end
 })
+local MainTab = Window:CreateTab("Main", 4483362458) -- Ícone padrão
+
+-- Label com os créditos internos
+MainTab:CreateLabel("Diretor: @shadown_gd")
+MainTab:CreateLabel("Programador: @shadown_gd and @Shadownchavoso")
+
+MainTab:CreateButton({
+    Name = "Entrar no Discord",
+    Callback = function()
+        setclipboard("https://discord.gg/baSasGFhaG")
+        Rayfield:Notify({
+            Title = "Link copiado",
+            Content = "O link do Discord foi copiado para sua área de transferência.",
+            Duration = 5
+        })
+    end
+})
+
+--nova aba de main
+MainTab:CreateButton({
+    Name = "Ativar Anti-Cheat",
+    Callback = function()
+        local mt = getrawmetatable(game)
+        setreadonly(mt, false)
+        local oldNamecall = mt.__namecall
+
+        mt.__namecall = newcclosure(function(self, ...)
+            local method = getnamecallmethod()
+            if method == "Kick" then
+                return warn("Tentativa de Kick bloqueada.")
+            end
+            return oldNamecall(self, ...)
+        end)
+
+        local TeleportService = game:GetService("TeleportService")
+        TeleportService.Teleport = function()
+            warn("Teleport bloqueado.")
+        end
+
+        local BlockList = {"BanRemote", "KickPlayer", "ReportRemote"}
+        for _, v in ipairs(game:GetDescendants()) do
+            if table.find(BlockList, v.Name) and (v:IsA("RemoteEvent") or v:IsA("RemoteFunction")) then
+                v:Destroy()
+            end
+        end
+
+        Rayfield:Notify({
+            Title = "Anti-Cheat",
+            Content = "Sistema de proteção ativado com sucesso.",
+            Duration = 6.5
+        })
+    end
+})
