@@ -246,7 +246,7 @@ AutoWinTab:CreateToggle({Name = "Anti-Fall", CurrentValue = false, Callback = fu
             if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
                 local velocity = LocalPlayer.Character.HumanoidRootPart.Velocity
                 if velocity.Y < -2 then
-                    LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, -25, 0)
+                    LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(0, -20, 0)
                 end
             end
         end)
