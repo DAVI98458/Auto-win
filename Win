@@ -1,332 +1,269 @@
--- Carregamento da Interface e Keyy
+-- Copia automaticamente o link da key
 setclipboard("https://lootdest.org/s?nJO3MzzM")
-local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
-local Players, Workspace, RunService = game:GetService("Players"), game:GetService("Workspace"), game:GetService("RunService")
-local LocalPlayer, Camera = Players.LocalPlayer, Workspace.CurrentCamera
 
+-- Carregamento oficial da Rayfield
+loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+
+-- Criação da Janela com sistema de Key configurado
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 local Window = Rayfield:CreateWindow({
-	Name = "Red Light, Green Light and Glass Bridge",
-	LoadingTitle = "Loading Script",
-	LoadingSubtitle = "by @shadown_gd",
-	KeySystem = true,
-	KeySettings = {
-		Title = "Key System",
-		Subtitle = "Enter the key below",
-		Note = "The key link has already been copied",
-		FileName = "ShadownKeyFile",
-		SaveKey = false,
-		Key = "11.7🥳"
-	}
+    Name = "red light, Green light and Glass bridge",
+    LoadingTitle = "Shadow Hub",
+    LoadingSubtitle = "by @shadown_gd",
+    ConfigurationSaving = {
+        Enabled = false
+    },
+    Discord = {
+        Enabled = false
+    },
+    KeySystem = true,
+    KeySettings = {
+        Title = "Shadow Hub Key",
+        Subtitle = "Enter your key below",
+        Note = "The key link has already been copied to your clipboard",
+        FileName = "ShadowHubKeyFile",
+        SaveKey = false,
+        GrabKeyFromSite = false,
+        Key = "11.7🥳"
+    }
 })
 
--- Variáveis de Controle
-local AimbotEnabled, TeamCheck, DeadCheck, WallCheck = false, false, false, false
-local ESPEnabled, NameTags = false, {}
-local Speed = 16
-local NoclipEnabled, InfJumpEnabled = false, false
-local AntiFallEnabled = false
-local antiFallVelocity -- para o BodyVelocity do Anti-Fall
-
--- Funções Utilitárias
-local function IsAlive(player)
-	local char = player.Character
-	return char and char:FindFirstChild("Humanoid") and char:FindFirstChild("HumanoidRootPart") and char.Humanoid.Health > 0
-end
-
-local function IsVisible(part)
-	local ray = Ray.new(Camera.CFrame.Position, (part.Position - Camera.CFrame.Position).Unit * 500)
-	local hit = Workspace:FindPartOnRay(ray, LocalPlayer.Character, false, true)
-	return hit and hit:IsDescendantOf(part.Parent)
-end
-
--- ESP All Nickname
-local function CreateNameTag(player)
-	if NameTags[player] then NameTags[player]:Destroy() end
-	local tag = Instance.new("BillboardGui")
-	tag.Size = UDim2.new(0, 100, 0, 30)
-	tag.StudsOffset = Vector3.new(0, 3, 0)
-	tag.Adornee = player.Character and player.Character:FindFirstChild("Head")
-	tag.AlwaysOnTop = true
-	tag.Name = "NameTag"
-
-	local label = Instance.new("TextLabel", tag)
-	label.Size = UDim2.new(1, 0, 1, 0)
-	label.Text = player.Name
-	label.TextSize = 11
-	label.BackgroundTransparency = 1
-	label.Font = Enum.Font.SourceSansBold
-	label.TextColor3 = player.Team and player.Team.TeamColor.Color or Color3.fromRGB(255, 255, 255)
-
-	NameTags[player] = tag
-	if player.Character and player.Character:FindFirstChild("Head") then
-		tag.Adornee = player.Character.Head
-		tag.Parent = player.Character.Head
-	end
-end
-
-local function RemoveNameTag(player)
-	if NameTags[player] then
-		NameTags[player]:Destroy()
-		NameTags[player] = nil
-	end
-end
-
-local function UpdateESP()
-	if not ESPEnabled then
-		for player, _ in pairs(NameTags) do
-			RemoveNameTag(player)
-		end
-		return
-	end
-
-	for _, player in pairs(Players:GetPlayers()) do
-		if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
-			if not NameTags[player] then
-				CreateNameTag(player)
-			else
-				-- Atualizar Adornee se necessário
-				if NameTags[player].Adornee ~= player.Character.Head then
-					NameTags[player].Adornee = player.Character.Head
-					NameTags[player].Parent = player.Character.Head
-				end
-				-- Atualizar cor
-				local label = NameTags[player]:FindFirstChildOfClass("TextLabel")
-				if label and player.Team then
-					label.TextColor3 = player.Team.TeamColor.Color
-				end
-			end
-		else
-			RemoveNameTag(player)
-		end
-	end
-end
-
-Players.PlayerAdded:Connect(function(p)
-	p.CharacterAdded:Connect(function()
-		wait(1)
-		if ESPEnabled then
-			CreateNameTag(p)
-		end
-	end)
-end)
+-- Serviços
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
 -- Aimbot
+local AimbotEnabled = false
+local AimbotNormal = false
+local TeamCheck = false
+local DeadCheck = false
+local WallCheck = false
+
+-- ESP
+local ESPEnabled = false
+local ESPObjects = {}
+
+-- Auto ESP refresh
+RunService.Stepped:Connect(function()
+    if ESPEnabled then
+        for _, esp in pairs(ESPObjects) do
+            if esp.TextLabel then
+                esp.TextLabel:Destroy()
+            end
+        end
+        ESPObjects = {}
+
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+                local teamColor = player.TeamColor.Color
+                local head = player.Character:FindFirstChild("Head")
+
+                local textLabel = Drawing.new("Text")
+                textLabel.Text = player.Name
+                textLabel.Color = teamColor
+                textLabel.Size = 11
+                textLabel.Center = true
+                textLabel.Outline = true
+                textLabel.Visible = true
+
+                ESPObjects[player] = {TextLabel = textLabel, Head = head}
+            end
+        end
+    else
+        for _, esp in pairs(ESPObjects) do
+            if esp.TextLabel then
+                esp.TextLabel:Remove()
+            end
+        end
+        ESPObjects = {}
+    end
+end)
+
 RunService.RenderStepped:Connect(function()
-	if AimbotEnabled then
-		local closest, dist = nil, math.huge
-		for _, p in pairs(Players:GetPlayers()) do
-			if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
-				if DeadCheck and (not IsAlive(p)) then continue end
-				if TeamCheck and p.Team == LocalPlayer.Team then continue end
-				if WallCheck and not IsVisible(p.Character.Head) then continue end
-
-				local velocity = p.Character:FindFirstChild("HumanoidRootPart") and p.Character.HumanoidRootPart.Velocity
-				if velocity and velocity.Magnitude < 1 then continue end -- só mira se estiver se movendo
-
-				local screenPos, onScreen = Camera:WorldToViewportPoint(p.Character.Head.Position)
-				if onScreen then
-					local distToCenter = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
-					if distToCenter < dist then
-						dist = distToCenter
-						closest = p
-					end
-				end
-			end
-		end
-		if closest and closest.Character and closest.Character:FindFirstChild("Head") then
-			Camera.CFrame = CFrame.new(Camera.CFrame.Position, closest.Character.Head.Position)
-		end
-	end
+    for _, data in pairs(ESPObjects) do
+        local pos, visible = Camera:WorldToViewportPoint(data.Head.Position)
+        if visible then
+            data.TextLabel.Position = Vector2.new(pos.X, pos.Y)
+            data.TextLabel.Visible = true
+        else
+            data.TextLabel.Visible = false
+        end
+    end
 end)
 
--- Atualização ESP a cada 1 segundo
-task.spawn(function()
-	while true do
-		UpdateESP()
-		wait(1)
-	end
+-- Função Aimbot
+local function getClosestPlayer()
+    local closest = nil
+    local shortest = math.huge
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
+            if TeamCheck and player.Team == LocalPlayer.Team then
+                continue
+            end
+            if DeadCheck and (not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0) then
+                continue
+            end
+            if WallCheck then
+                local origin = Camera.CFrame.Position
+                local direction = (player.Character.Head.Position - origin).Unit * 1000
+                local ray = Ray.new(origin, direction)
+                local part = workspace:FindPartOnRay(ray, LocalPlayer.Character, false, true)
+                if part and not player.Character:IsAncestorOf(part) then
+                    continue
+                end
+            end
+
+            if AimbotEnabled and player.Character.Humanoid.MoveDirection.Magnitude == 0 then
+                continue
+            end
+
+            local screenPoint, visible = Camera:WorldToViewportPoint(player.Character.Head.Position)
+            if visible then
+                local distance = (Vector2.new(screenPoint.X, screenPoint.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
+                if distance < shortest then
+                    closest = player
+                    shortest = distance
+                end
+            end
+        end
+    end
+    return closest
+end
+
+RunService.RenderStepped:Connect(function()
+    if AimbotEnabled or AimbotNormal then
+        local target = getClosestPlayer()
+        if target then
+            Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Character.Head.Position)
+        end
+    end
 end)
 
--- ABA AIMBOT
-local AimbotTab = Window:CreateTab("Aimbot")
+-- Interface - Aimbot
+local AimbotTab = Window:CreateTab("Aimbot", 4483362458)
 AimbotTab:CreateToggle({
-	Name = "On Aimbot",
-	CurrentValue = false,
-	Callback = function(Value)
-		AimbotEnabled = Value
-	end
+    Name = "On Aimbot(only aim at those who move)",
+    CurrentValue = false,
+    Callback = function(Value)
+        AimbotEnabled = Value
+    end
 })
 AimbotTab:CreateToggle({
-	Name = "Team Check",
-	CurrentValue = false,
-	Callback = function(Value)
-		TeamCheck = Value
-	end
+    Name = "Aimbot Normal(this is really normal)",
+    CurrentValue = false,
+    Callback = function(Value)
+        AimbotNormal = Value
+    end
 })
 AimbotTab:CreateToggle({
-	Name = "Dead Check",
-	CurrentValue = false,
-	Callback = function(Value)
-		DeadCheck = Value
-	end
+    Name = "Team Check",
+    CurrentValue = false,
+    Callback = function(Value)
+        TeamCheck = Value
+    end
 })
 AimbotTab:CreateToggle({
-	Name = "Wall Check",
-	CurrentValue = false,
-	Callback = function(Value)
-		WallCheck = Value
-	end
+    Name = "Dead Check",
+    CurrentValue = false,
+    Callback = function(Value)
+        DeadCheck = Value
+    end
 })
 AimbotTab:CreateToggle({
-	Name = "ESP All Nickname",
-	CurrentValue = false,
-	Callback = function(Value)
-		ESPEnabled = Value
-	end
+    Name = "Wall Check",
+    CurrentValue = false,
+    Callback = function(Value)
+        WallCheck = Value
+    end
+})
+AimbotTab:CreateToggle({
+    Name = "ESP All Nickname",
+    CurrentValue = false,
+    Callback = function(Value)
+        ESPEnabled = Value
+    end
 })
 
--- ABA AUTO WIN
-local AutoWinTab = Window:CreateTab("Auto Win")
+-- Interface - Auto Win
+local AutoWinTab = Window:CreateTab("Auto Win", 4483362458)
 AutoWinTab:CreateButton({
-	Name = "Auto Win Glass Bridge",
-	Callback = function()
-		Rayfield:Notify({Title = "Auto Win", Content = "wait 3 seconds", Duration = 3})
-		LocalPlayer.Character:MoveTo(Vector3.new(-22, 161, 1546))
-		wait(3)
-		LocalPlayer.Character:MoveTo(Vector3.new(195, 161, 1548))
-	end
+    Name = "Safezone",
+    Callback = function()
+        LocalPlayer.Character:MoveTo(Vector3.new(383, 4, -80))
+    end
 })
 AutoWinTab:CreateButton({
-	Name = "Auto Win Red Light and Green Light",
-	Callback = function()
-		Rayfield:Notify({Title = "Auto Win", Content = "wait 4 seconds", Duration = 4})
-		LocalPlayer.Character:MoveTo(Vector3.new(339, 4, -123))
-		wait(4)
-		LocalPlayer.Character:MoveTo(Vector3.new(-247, 4, -187))
-	end
-})
-AutoWinTab:CreateButton({
-	Name = "Safezone",
-	Callback = function()
-		LocalPlayer.Character:MoveTo(Vector3.new(383, 4, -80))
-	end
+    Name = "Red Light & Green Light Auto Win",
+    Callback = function()
+        LocalPlayer.Character:MoveTo(Vector3.new(339, 4, -123))
+        wait(4)
+        LocalPlayer.Character:MoveTo(Vector3.new(-247, 4, -187))
+    end
 })
 AutoWinTab:CreateToggle({
-	Name = "Anti-Fall",
-	CurrentValue = false,
-	Callback = function(value)
-		AntiFallEnabled = value
-	end
+    Name = "Anti-Fall",
+    CurrentValue = false,
+    Callback = function(Value)
+        if Value then
+            RunService.Stepped:Connect(function()
+                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local vel = LocalPlayer.Character.HumanoidRootPart.Velocity
+                    if vel.Y < -2 then
+                        LocalPlayer.Character.HumanoidRootPart.Velocity = Vector3.new(vel.X, -6, vel.Z)
+                    end
+                end
+            end)
+        end
+    end
 })
 
--- Lógica Anti-Fall: desacelera a queda usando BodyVelocity
-RunService.Stepped:Connect(function()
-	if AntiFallEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-		local humanoid = LocalPlayer.Character.Humanoid
-		local rootPart = LocalPlayer.Character.HumanoidRootPart
-
-		if humanoid.FloorMaterial == Enum.Material.Air and humanoid:GetState() == Enum.HumanoidStateType.Freefall then
-			-- Aplica força para reduzir a velocidade da queda
-			if not antiFallVelocity then
-				antiFallVelocity = Instance.new("BodyVelocity")
-				antiFallVelocity.Velocity = Vector3.new(0, -29, 0) -- controla a velocidade descendente (ajuste aqui se quiser cair mais lento)
-				antiFallVelocity.MaxForce = Vector3.new(0, math.huge, 0)
-				antiFallVelocity.Parent = rootPart
-			end
-			-- Caminha devagar durante a queda
-			humanoid.WalkSpeed = 4
-		else
-			-- Remove força e restaura velocidade padrão
-			if antiFallVelocity then
-				antiFallVelocity:Destroy()
-				antiFallVelocity = nil
-			end
-			if humanoid.WalkSpeed ~= Speed then
-				humanoid.WalkSpeed = Speed
-			end
-		end
-	else
-		if antiFallVelocity then
-			antiFallVelocity:Destroy()
-			antiFallVelocity = nil
-		end
-	end
-end)
-
--- ABA MODIFIERS
-local ModifierTab = Window:CreateTab("Modifiers")
-ModifierTab:CreateSlider({
-	Name = "WalkSpeed",
-	Range = {16, 300},
-	Increment = 1,
-	CurrentValue = 16,
-	Callback = function(Value)
-		Speed = Value
-		if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-			LocalPlayer.Character.Humanoid.WalkSpeed = Speed
-		end
-	end
+-- Interface - Modifiers
+local ModTab = Window:CreateTab("Modifiers", 4483362458)
+ModTab:CreateSlider({
+    Name = "WalkSpeed",
+    Range = {16, 300},
+    Increment = 1,
+    CurrentValue = 16,
+    Callback = function(Value)
+        LocalPlayer.Character.Humanoid.WalkSpeed = Value
+    end
 })
-ModifierTab:CreateToggle({
-	Name = "Noclip",
-	CurrentValue = false,
-	Callback = function(Value)
-		NoclipEnabled = Value
-	end
+ModTab:CreateToggle({
+    Name = "Noclip",
+    CurrentValue = false,
+    Callback = function(Value)
+        RunService.Stepped:Connect(function()
+            if Value and LocalPlayer.Character then
+                for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end
+        end)
+    end
 })
-ModifierTab:CreateToggle({
-	Name = "Infinite Jump",
-	CurrentValue = false,
-	Callback = function(Value)
-		InfJumpEnabled = Value
-	end
+ModTab:CreateToggle({
+    Name = "Infinite Jump",
+    CurrentValue = false,
+    Callback = function(Value)
+        if Value then
+            game:GetService("UserInputService").JumpRequest:Connect(function()
+                LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+            end)
+        end
+    end
 })
 
--- Infinite Jump
-game:GetService("UserInputService").JumpRequest:Connect(function()
-	if InfJumpEnabled and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-		LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-	end
-end)
-
--- Noclip
-RunService.Stepped:Connect(function()
-	if NoclipEnabled and LocalPlayer.Character then
-		for _, v in pairs(LocalPlayer.Character:GetDescendants()) do
-			if v:IsA("BasePart") and v.CanCollide then
-				v.CanCollide = false
-			end
-		end
-	end
-end)
-
--- ABA TOOLS
-local ToolsTab = Window:CreateTab("Tools")
-ToolsTab:CreateButton({
-	Name = "TP Tool",
-	Callback = function()
-		local tool = Instance.new("Tool")
-		tool.RequiresHandle = false
-		tool.Name = "TP Tool"
-		tool.Activated:Connect(function()
-			local mouse = LocalPlayer:GetMouse()
-			if mouse then
-				LocalPlayer.Character:MoveTo(mouse.Hit.Position)
-			end
-		end)
-		tool.Parent = LocalPlayer.Backpack
-	end
-})
-ToolsTab:CreateParagraph({Title = "More stuff coming soon", Content = ""})
-
--- ABA CREDITS
-local CreditsTab = Window:CreateTab("Credits")
-CreditsTab:CreateParagraph({Title = "Diretor", Content = "@shadown_gd"})
-CreditsTab:CreateParagraph({Title = "Programadores", Content = "@shadown_gd and @Shadownchavoso"})
+-- Interface - Credits
+local CreditsTab = Window:CreateTab("Credits", 4483362458)
+CreditsTab:CreateLabel("Direitor: @shadown_gd")
+CreditsTab:CreateLabel("Programador: @shadown_gd and @Shadownchavoso")
 CreditsTab:CreateButton({
-	Name = "DISCORD",
-	Callback = function()
-		setclipboard("https://discord.gg/baSasGFhaG")
-		Rayfield:Notify({Title = "Copied", Content = "Link copied to clipboard", Duration = 3})
+    Name = "DISCORD",
+    Callback = function()
+        setclipboard("https://discord.gg/baSasGFhaG")
     end
 })
