@@ -1,7 +1,6 @@
-loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
-
 setclipboard("https://lootdest.org/s?nJO3MzzM")
 
+-- o LOADSTRING
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 local Window = Rayfield:CreateWindow({
