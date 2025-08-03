@@ -347,39 +347,3 @@ MainTab:CreateButton({
         })
     end
 })
-
---nova aba de main
-MainTab:CreateButton({
-    Name = "Ativar Anti-Cheat",
-    Callback = function()
-        local mt = getrawmetatable(game)
-        setreadonly(mt, false)
-        local oldNamecall = mt.__namecall
-
-        mt.__namecall = newcclosure(function(self, ...)
-            local method = getnamecallmethod()
-            if method == "Kick" then
-                return warn("Tentativa de Kick bloqueada.")
-            end
-            return oldNamecall(self, ...)
-        end)
-
-        local TeleportService = game:GetService("TeleportService")
-        TeleportService.Teleport = function()
-            warn("Teleport bloqueado.")
-        end
-
-        local BlockList = {"BanRemote", "KickPlayer", "ReportRemote"}
-        for _, v in ipairs(game:GetDescendants()) do
-            if table.find(BlockList, v.Name) and (v:IsA("RemoteEvent") or v:IsA("RemoteFunction")) then
-                v:Destroy()
-            end
-        end
-
-        Rayfield:Notify({
-            Title = "Anti-Cheat",
-            Content = "Sistema de proteção ativado com sucesso.",
-            Duration = 6.5
-        })
-    end
-})
