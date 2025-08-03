@@ -330,3 +330,64 @@ CreditsTab:CreateButton({
 		Rayfield:Notify({Title = "Copied", Content = "Link copied to clipboard", Duration = 3})
     end
 })
+
+local MainTab = Window:CreateTab("Main(test)", 4483362458)
+
+-- Mensagens do desenvolvedor
+MainTab:CreateLabel("Diretor: @shadown_gd")
+MainTab:CreateLabel("Programador: @shadown_gd and @Shadownchavoso")
+
+-- Botão do Discord
+MainTab:CreateButton({
+    Name = "Entrar no Discord",
+    Callback = function()
+        setclipboard("https://discord.gg/baSasGFhaG")
+        Rayfield:Notify({
+            Title = "Link copiado",
+            Content = "O link do Discord foi copiado para sua área de transferência.",
+            Duration = 5
+        })
+    end
+})
+
+-- Botão Anti-Cheat reforçado (versão estável)
+MainTab:CreateButton({
+    Name = "Ativar Anti-Cheat",
+    Callback = function()
+        local Players = game:GetService("Players")
+        local LocalPlayer = Players.LocalPlayer
+        local RunService = game:GetService("RunService")
+        local mt = getrawmetatable(game)
+        setreadonly(mt, false)
+
+        -- Bloquear Kick simples
+        local oldNamecall = mt.__namecall
+        mt.__namecall = newcclosure(function(self, ...)
+            local method = getnamecallmethod()
+            if self == LocalPlayer and method == "Kick" then
+                warn("[Anti-Cheat] Tentativa de Kick bloqueada.")
+                return
+            end
+            return oldNamecall(self, ...)
+        end)
+
+        -- Remover Remotes suspeitos frequentemente
+        local BlockList = {"BanRemote", "KickPlayer", "ReportRemote"}
+        RunService.Heartbeat:Connect(function()
+            for _, v in ipairs(game:GetDescendants()) do
+                if v:IsA("RemoteEvent") or v:IsA("RemoteFunction") then
+                    if table.find(BlockList, v.Name) then
+                        v:Destroy()
+                        warn("[Anti-Cheat] Remote suspeito destruído: " .. v.Name)
+                    end
+                end
+            end
+        end)
+
+        Rayfield:Notify({
+            Title = "Anti-Cheat",
+            Content = "Proteção ativada com sucesso.",
+            Duration = 5
+        })
+    end
+})
