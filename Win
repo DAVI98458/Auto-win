@@ -40,25 +40,45 @@ local AimbotNormalEnabled = false
 local TeamCheck = false
 local DeadCheck = false
 local WallCheck = false
+local NoclipEnabled = false
+local InfiniteJumpEnabled = false
 local ESPFolder = Instance.new("Folder", game.CoreGui)
 ESPFolder.Name = "ShadowESP"
 
+local noclipConnection
+local infJumpConnection
+
+-- ESP Creation
 local function CreateESP(player)
+    if not player.Character or not player.Character:FindFirstChild("Head") then return end
+
+    local existing = ESPFolder:FindFirstChild(player.Name)
+    if existing then
+        -- Update color and name in case of team change
+        local nameTag = existing:FindFirstChildOfClass("BillboardGui") or existing:FindFirstChildWhichIsA("BillboardGui") or existing:FindFirstChild("BillboardGui")
+        if existing:FindFirstChild("NameTag") then
+            existing.NameTag.TextColor3 = player.Team and player.Team.TeamColor.Color or Color3.new(1,1,1)
+        end
+        return
+    end
+
     local Billboard = Instance.new("BillboardGui")
     Billboard.Name = player.Name
     Billboard.Size = UDim2.new(0, 100, 0, 40)
     Billboard.StudsOffset = Vector3.new(0, 3, 0)
-    Billboard.Adornee = player.Character:FindFirstChild("Head")
+    Billboard.Adornee = player.Character.Head
     Billboard.AlwaysOnTop = true
     Billboard.Parent = ESPFolder
 
     local NameTag = Instance.new("TextLabel", Billboard)
+    NameTag.Name = "NameTag"
     NameTag.Size = UDim2.new(1, 0, 1, 0)
     NameTag.BackgroundTransparency = 1
     NameTag.Text = player.Name
     NameTag.TextSize = 11
     NameTag.Font = Enum.Font.SourceSans
     NameTag.TextColor3 = player.Team and player.Team.TeamColor.Color or Color3.new(1,1,1)
+    NameTag.TextStrokeTransparency = 0.7
 end
 
 local function ClearESP()
@@ -82,6 +102,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
+-- Raycasting for WallCheck
 local function IsVisible(target)
     local origin = Camera.CFrame.Position
     local direction = (target.Position - origin).Unit * 1000
@@ -92,21 +113,37 @@ local function IsVisible(target)
     return not result or result.Instance:IsDescendantOf(target.Parent)
 end
 
-local function GetTarget()
+-- Get target for Aimbot
+local function GetTarget(onlyMoving)
     local closest = nil
     local shortest = math.huge
     for _, player in ipairs(Players:GetPlayers()) do
         if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("Head") then
-            if (not TeamCheck or player.Team ~= LocalPlayer.Team)
-            and (not DeadCheck or player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.Health > 0)
-            and (not WallCheck or IsVisible(player.Character.Head)) then
-                local screenPos, onScreen = Camera:WorldToViewportPoint(player.Character.Head.Position)
-                if onScreen then
-                    local distance = (Vector2.new(screenPos.X, screenPos.Y) - UIS:GetMouseLocation()).Magnitude
-                    if distance < shortest then
-                        if not AimbotEnabled or (AimbotEnabled and player.Character.HumanoidRootPart.Velocity.Magnitude > 1) then
-                            closest = player
-                            shortest = distance
+            local humanoid = player.Character:FindFirstChild("Humanoid")
+            local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+            if humanoid and humanoid.Health > 0 then
+                if (not TeamCheck or player.Team ~= LocalPlayer.Team) and (not DeadCheck or humanoid.Health > 0) then
+                    if (not WallCheck or IsVisible(player.Character.Head)) then
+                        if onlyMoving then
+                            if hrp and hrp.Velocity.Magnitude > 1 then
+                                local screenPos, onScreen = Camera:WorldToViewportPoint(player.Character.Head.Position)
+                                if onScreen then
+                                    local dist = (Vector2.new(screenPos.X, screenPos.Y) - UIS:GetMouseLocation()).Magnitude
+                                    if dist < shortest then
+                                        closest = player
+                                        shortest = dist
+                                    end
+                                end
+                            end
+                        else
+                            local screenPos, onScreen = Camera:WorldToViewportPoint(player.Character.Head.Position)
+                            if onScreen then
+                                local dist = (Vector2.new(screenPos.X, screenPos.Y) - UIS:GetMouseLocation()).Magnitude
+                                if dist < shortest then
+                                    closest = player
+                                    shortest = dist
+                                end
+                            end
                         end
                     end
                 end
@@ -118,7 +155,12 @@ end
 
 RunService.RenderStepped:Connect(function()
     if AimbotEnabled or AimbotNormalEnabled then
-        local target = GetTarget()
+        local target = nil
+        if AimbotEnabled then
+            target = GetTarget(true) -- only moving
+        elseif AimbotNormalEnabled then
+            target = GetTarget(false) -- any
+        end
         if target and target.Character and target.Character:FindFirstChild("Head") then
             Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Character.Head.Position)
         end
@@ -126,6 +168,7 @@ RunService.RenderStepped:Connect(function()
 end)
 
 -- Tabs
+
 local AimbotTab = Window:CreateTab("Aimbot", 4483362458)
 AimbotTab:CreateToggle({Name = "On Aimbot (moving only)", CurrentValue = false, Callback = function(v) AimbotEnabled = v end})
 AimbotTab:CreateToggle({Name = "Aimbot Normal", CurrentValue = false, Callback = function(v) AimbotNormalEnabled = v end})
@@ -136,33 +179,66 @@ AimbotTab:CreateToggle({Name = "ESP All Nickname", CurrentValue = false, Callbac
 
 local ModifiersTab = Window:CreateTab("Modifiers", 4483362458)
 ModifiersTab:CreateSlider({Name = "WalkSpeed", Range = {16, 300}, Increment = 1, CurrentValue = 16, Callback = function(v)
-    LocalPlayer.Character.Humanoid.WalkSpeed = v
-end})
-ModifiersTab:CreateToggle({Name = "Noclip", CurrentValue = false, Callback = function(v)
-    if v then
-        RunService.Stepped:Connect(function()
-            for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
-                if part:IsA("BasePart") then part.CanCollide = false end
-            end
-        end)
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+        LocalPlayer.Character.Humanoid.WalkSpeed = v
     end
 end})
-ModifiersTab:CreateToggle({Name = "Infinite Jump", CurrentValue = false, Callback = function(v)
-    if v then
-        UIS.JumpRequest:Connect(function()
-            LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+
+ModifiersTab:CreateToggle({Name = "Noclip", CurrentValue = false, Callback = function(v)
+    NoclipEnabled = v
+    if NoclipEnabled then
+        noclipConnection = RunService.Stepped:Connect(function()
+            if LocalPlayer.Character then
+                for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.CanCollide = false
+                    end
+                end
+            end
         end)
+    else
+        if noclipConnection then
+            noclipConnection:Disconnect()
+            noclipConnection = nil
+        end
+        if LocalPlayer.Character then
+            for _, part in ipairs(LocalPlayer.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = true
+                end
+            end
+        end
+    end
+end})
+
+ModifiersTab:CreateToggle({Name = "Infinite Jump", CurrentValue = false, Callback = function(v)
+    InfiniteJumpEnabled = v
+    if InfiniteJumpEnabled then
+        infJumpConnection = UIS.JumpRequest:Connect(function()
+            if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+                LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end)
+    else
+        if infJumpConnection then
+            infJumpConnection:Disconnect()
+            infJumpConnection = nil
+        end
     end
 end})
 
 local AutoWinTab = Window:CreateTab("Auto Win", 4483362458)
 AutoWinTab:CreateButton({Name = "Red Light Green Light", Callback = function()
-    LocalPlayer.Character:MoveTo(Vector3.new(339, 4, -123))
-    task.wait(4)
-    LocalPlayer.Character:MoveTo(Vector3.new(-247, 4, -187))
+    if LocalPlayer.Character then
+        LocalPlayer.Character:MoveTo(Vector3.new(339, 4, -123))
+        task.wait(4)
+        LocalPlayer.Character:MoveTo(Vector3.new(-247, 4, -187))
+    end
 end})
 AutoWinTab:CreateButton({Name = "Glass Bridge Safezone", Callback = function()
-    LocalPlayer.Character:MoveTo(Vector3.new(383, 4, -80))
+    if LocalPlayer.Character then
+        LocalPlayer.Character:MoveTo(Vector3.new(383, 4, -80))
+    end
 end})
 AutoWinTab:CreateToggle({Name = "Anti-Fall", CurrentValue = false, Callback = function(v)
     if v then
