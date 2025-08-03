@@ -234,7 +234,7 @@ AutoWinTab:CreateButton({Name = "Red Light Green Light", Callback = function()
         LocalPlayer.Character:MoveTo(Vector3.new(-247, 4, -187))
     end
 end})
-AutoWinTab:CreateButton({Name = "Glass Bridge Safezone", Callback = function()
+AutoWinTab:CreateButton({Name = "Safezone", Callback = function()
     if LocalPlayer.Character then
         LocalPlayer.Character:MoveTo(Vector3.new(383, 4, -80))
     end
