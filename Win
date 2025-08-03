@@ -328,44 +328,5 @@ CreditsTab:CreateButton({
 	Callback = function()
 		setclipboard("https://discord.gg/baSasGFhaG")
 		Rayfield:Notify({Title = "Copied", Content = "Link copied to clipboard", Duration = 3})
-
--- botão de anti-cheat
-Window:CreateButton({
-    Name = "Ativar Anti-Cheat",
-    Callback = function()
-        local Players = game:GetService("Players")
-        local LocalPlayer = Players.LocalPlayer
-        local RunService = game:GetService("RunService")
-        local mt = getrawmetatable(game)
-        setreadonly(mt, false)
-
-        -- Hook básico: bloqueia tentativa de Kick
-        local oldNamecall = mt.__namecall
-        mt.__namecall = newcclosure(function(self, ...)
-            local method = getnamecallmethod()
-            if self == LocalPlayer and method == "Kick" then
-                warn("[Anti-Cheat] Tentativa de Kick bloqueada.")
-                return
-            end
-            return oldNamecall(self, ...)
-        end)
-
-        -- Monitoramento e destruição de Remotes suspeitos
-        local BlockList = {"BanRemote", "KickPlayer", "ReportRemote"}
-        RunService.Heartbeat:Connect(function()
-            for _, v in ipairs(game:GetDescendants()) do
-                if (v:IsA("RemoteEvent") or v:IsA("RemoteFunction")) and table.find(BlockList, v.Name) then
-                    v:Destroy()
-                    warn("[Anti-Cheat] Remote malicioso removido: " .. v.Name)
-                end
-            end
-        end)
-
-        -- Confirmação visual
-        Rayfield:Notify({
-            Title = "Anti-Cheat",
-            Content = "Proteção ativada com sucesso.",
-            Duration = 5
-        })
     end
 })
