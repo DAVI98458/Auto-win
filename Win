@@ -251,7 +251,6 @@ AutoWinTab:CreateToggle({Name = "Anti-Fall", CurrentValue = false, Callback = fu
         end)
     end
 end})
-
 local ToolsTab = Window:CreateTab("Tools", 4483362458)
 ToolsTab:CreateButton({Name = "TP Tool", Callback = function()
     local tool = Instance.new("Tool", LocalPlayer.Backpack)
@@ -265,6 +264,16 @@ ToolsTab:CreateButton({Name = "TP Tool", Callback = function()
     end)
 end})
 ToolsTab:CreateParagraph({Title = "", Content = "More stuff coming soon"})
+-- Credits Tab
+local CreditsTab = Window:CreateTab("Credits")
 
-local CreditsTab = Window:CreateTab("Credits", 4483362458)
-CreditsTab:CreateParagraph({Title = "Shadow Hub", Content = "Made by @shadown_gd"})
+CreditsTab:CreateParagraph({
+    Title = "Director",
+    Content = "@shadown_gd"
+})
+
+CreditsTab:CreateParagraph({
+    Title = "Programmer",
+    Content = "@shadown_gd and @Shadownchavoso"
+})
+
