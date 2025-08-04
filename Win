@@ -268,4 +268,3 @@ ToolsTab:CreateParagraph({Title = "", Content = "More stuff coming soon"})
 
 local CreditsTab = Window:CreateTab("Credits", 4483362458)
 CreditsTab:CreateParagraph({Title = "Shadow Hub", Content = "Made by @shadown_gd"})
-})
