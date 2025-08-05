@@ -215,7 +215,7 @@ AimbotTab:CreateToggle({
 
 -- On Aimbot toggle (only targets moving players)
 AimbotTab:CreateToggle({
-    Name = "On Aimbot",
+    Name = "On Aimbot (target moving people)",
     Flag = "OnAimbotToggle",
     Callback = function(value)
         AimbotOnEnabled = value
@@ -239,7 +239,7 @@ AimbotTab:CreateToggle({
 
 -- Aimbot Normal toggle (targets any player)
 AimbotTab:CreateToggle({
-    Name = "Aimbot Normal",
+    Name = "Aimbot Normal (It is not like Aimbot which only targets those who move)",
     Flag = "AimbotNormalToggle",
     Callback = function(value)
         AimbotNormalEnabled = value
