@@ -168,7 +168,7 @@ AutoWinTab:CreateToggle({
             AntiFallConnection = RunService.Heartbeat:Connect(function()
                 local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                 if hrp and hrp.Velocity.Y < -5 then
-                    hrp.Velocity = Vector3.new(hrp.Velocity.X, -1, hrp.Velocity.Z)
+                    hrp.Velocity = Vector3.new(hrp.Velocity.X, -15, hrp.Velocity.Z)
                 end
             end)
         else
