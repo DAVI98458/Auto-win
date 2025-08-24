@@ -15,11 +15,11 @@ local Window = Rayfield:CreateWindow({
     KeySettings = {
         Title = "Shadow Hub Key",
         Subtitle = "Enter your key below",
-        Note = "The key link has already been copied to your clipboard",
+        Note = "key: 12.2k🥳",
         FileName = "ShadowHubKeyFile",
         SaveKey = false,
         GrabKeyFromSite = false,
-        Key = "11.7🥳"
+        Key = "12.2🥳"
     }
 })
 
