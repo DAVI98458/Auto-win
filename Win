@@ -19,7 +19,7 @@ local Window = Rayfield:CreateWindow({
         FileName = "ShadowHubKeyFile",
         SaveKey = false,
         GrabKeyFromSite = false,
-        Key = "12.2🥳"
+        Key = "12.2k🥳"
     }
 })
 
