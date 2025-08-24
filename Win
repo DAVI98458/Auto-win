@@ -1,4 +1,4 @@
--- Load Rayfield UI
+-- Load Rayfield U
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 -- Copy key link automatically
