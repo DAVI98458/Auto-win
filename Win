@@ -434,12 +434,12 @@ ToolsTab:CreateLabel("More stuff coming soon")
 --[[
 ==============================================================================
 ---------------------------- 5. Credits Tab ----------------------------------
-==============================================================================
-]]
+===========================================
 
 local CreditsTab = Window:CreateTab("Credits")
 
 CreditsTab:CreateLabel("Director: @shadown_gd")
 CreditsTab:CreateLabel("Programmers: @shadown_gd and @Shadownchavoso")
+CreditsTab:CreateLabel("the script will no longer have updates due to a small problem on my discord server")
 
 -- End of script
