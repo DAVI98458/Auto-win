@@ -136,7 +136,7 @@ AutoWinTab:CreateButton({
         if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
             -- Teleport sequence
             LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(339, 4, -123)
-            wait(4)
+            wait(2)
             LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-247, 4, -187)
         end
     end
