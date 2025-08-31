@@ -426,7 +426,7 @@ ToolsTab:CreateButton({
     end
 })
 
-ToolsTab:CreateLabel("More stuff coming soon")
+ToolsTab:CreateLabel("here will only have this and nothing else until I delete this script soon")
 
 --[[
 ==============================================================================
