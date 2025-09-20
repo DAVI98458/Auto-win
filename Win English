@@ -426,7 +426,7 @@ ToolsTab:CreateButton({
     end
 })
 
-ToolsTab:CreateLabel("here will only have this and nothing else until I delete this script soon")
+ToolsTab:CreateLabel("If you have any ideas in mind to add, call me on Discord (Nick: shadown_gd)")
 
 --[[
 ==============================================================================
