@@ -1,4 +1,4 @@
--- Load Rayfield U
+-- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 -- Create Rayfield window with KeySystem enabled
