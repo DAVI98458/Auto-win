@@ -439,8 +439,6 @@ local CreditsTab = Window:CreateTab("Credits")
 CreditsTab:CreateLabel("Director: @shadown_gd")
 CreditsTab:CreateLabel("Programmers: @shadown_gd and @Shadownchavoso")
 CreditsTab:CreateLabel("the script will no longer have updates due to a small problem on my discord server")
-CreditsTab:CreateLabel("will this be the end or not?")
-CreditsTab:CreateLabel("Make the most of this script, as it will be deleted soon.")
 CreditsTab:CreateLabel("thanks for everything even for using my script (thanks for reading)")
 
 -- End of script
