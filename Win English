@@ -3,7 +3,7 @@ local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 -- Create Rayfield window with KeySystem enabled
 local Window = Rayfield:CreateWindow({
-    Name = "red light, Green light and Glass bridge",
+    Name = "red light, Green light and Glass bridge ENGLISH",
     LoadingTitle = "Shadow Hub",
     LoadingSubtitle = "by @shadown_gd",
     ConfigurationSaving = { Enabled = false },
