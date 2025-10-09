@@ -147,7 +147,7 @@ AutoWinTab:CreateButton({
     Name = "Safezone",
     Callback = function()
         if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(383, 4, -80)
+            LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(322, 6, 406)
         end
     end
 })
